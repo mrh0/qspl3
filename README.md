@@ -7,7 +7,7 @@ Qspl supports both procedural and functional programming styles and is highly ex
 Syntax and the callback-nature will feel familiar to Javascript users.
 Tested to be ~half speed of luaj in basic loops and arthmetics.
 
-*Classes is WIP.
+*Classes are WIP.
 
 # Language
 
