@@ -2,7 +2,7 @@
 Quick Statement Programming Language v3.0.0
 
 # About
-Qspl is a object-oriented interpreted scripting programing language written in Java by MRH0 (aka MRH, MRHminer).
+Qspl is a object-oriented interpreted scripting programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
 Qspl supports both procedural and functional programming styles and is highly extendable through the java Extension api.
 Syntax and the callback-nature will feel familiar to Javascript users.
 Tested to be ~half speed of luaj in basic loops and arthmetics.
