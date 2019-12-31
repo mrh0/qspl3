@@ -214,7 +214,8 @@ httpGetAsync[url, type], httpPostAsync[url, type, data]
 Import/Export & Extensions:
 ```
 export var1; //Marks variable accessable for imports.
-import var1, func1, func2 from "path/file.qs"; //Executes file in a separate VM and imports variables marked as export from it's Scope to this Scope.
+//Executes file in a separate VM and imports variables marked as export from it's Scope to this Scope:
+import var1, func1, func2 from "path/file.qs"; 
 import * from "path/file.qs"; //Imports all exports from file.
 
 //Imports 'externalVar1' from a extension class in a external jar file:
