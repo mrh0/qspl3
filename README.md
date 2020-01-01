@@ -1,5 +1,5 @@
 # qspl
-Quick Statement Programming Language v3.0.0
+Quick Statement Programming Language v3.1.0
 
 # About
 Qspl is a object-oriented* interpreted scripting programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
@@ -222,6 +222,7 @@ httpGetAsync[url, type], httpPostAsync[url, type, data]
 Import/Export & Extensions:
 ```
 export var1; //Marks variable accessable for imports.
+export var1, var2; //Marks multiple variables accessable for imports.
 //Executes file in a separate VM and imports variables marked as export from it's Scope to this Scope:
 import var1, func1, func2 from "path/file.qs"; 
 import * from "path/file.qs"; //Imports all exports from file.
@@ -252,7 +253,8 @@ Line
 Comment */
 @notation text... (WIP)
 
-delete var1; //Removes reference.
+delete var1; //Remove reference.
+delete var1, var2; //Removes references.
 out "Some message."; //Prints [OUT:line:scope]: 'Some message.' to System.out.
 error "Some error message."; //Prints [ERR:line:scope]: 'Some message.' to System.err.
 exit value; //Exits current scope such as a function or program file and returns value.
