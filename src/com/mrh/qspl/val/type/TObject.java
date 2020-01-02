@@ -48,6 +48,8 @@ public class TObject implements Value{
 				this.set(key, o.get(key));
 			}
 		}
+		else
+			Console.g.err("Cannot preform operation add type " + Types.getName(v) + " to type Object.");
 		return this;
 	}
 
@@ -56,33 +58,40 @@ public class TObject implements Value{
 		if(v.getType() == Types.STRING) {
 			TString s = TString.from(v);
 			this.map.remove(s);
+			return TUndefined.getInstance();
 		}
+		Console.g.err("Cannot preform operation subtact type " + Types.getName(v) + " from type Object.");
 		return TUndefined.getInstance();
 	}
 
 	@Override
 	public Value multi(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation multiply type " + Types.getName(v) + " with type Object.");
+		return this;
 	}
 
 	@Override
 	public Value div(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation divide type " + Types.getName(v) + " with type Object.");
+		return this;
 	}
 
 	@Override
 	public Value mod(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation modulo type " + Types.getName(v) + " with type Object.");
+		return this;
 	}
 
 	@Override
 	public Value pow(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation pow type " + Types.getName(v) + " with type Object.");
+		return this;
 	}
 
 	@Override
 	public Value root() {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation sqrt on type Object.");
+		return this;
 	}
 
 	@Override

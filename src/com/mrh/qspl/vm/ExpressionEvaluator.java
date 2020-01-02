@@ -76,10 +76,7 @@ public class ExpressionEvaluator {
 		
 		boolean outCalled = false;
 		boolean errorCalled = false;
-		boolean includeCalled = false;
 		boolean includeFromCalled = false;
-		boolean exportCalled = false;
-		boolean deleteCalled = false;
 
 		boolean onceFunc = false;
 		
@@ -297,13 +294,31 @@ public class ExpressionEvaluator {
 						Console.g.setScope(vm.getCurrentScope()); // return to origin scope;
 						break;
 					case "export":
-						exportCalled = true;
+						if(!vals.isEmpty()) {
+							if(vals.peek().getType() == Types.OBJECT) {
+								TObject o = TObject.from(vals.pop(vars));
+								for(String name : o.getKeys()) {
+									vm.getCurrentScope().export(vm.getVar(name));
+								}
+							}
+						}
+						else
+							Console.g.err("No item is provided to export.");
 						break;
 					case "from":
 						includeFromCalled = true;
 						break;
 					case "delete":
-						deleteCalled = true;
+						if(!vals.isEmpty()) {
+							if(vals.peek().getType() == Types.OBJECT) {
+								TObject o = TObject.from(vals.pop(vars));
+								for(String name : o.getKeys()) {
+									vm.deleteVar(vm.getVar(name));
+								}
+							}
+						}
+						else
+							Console.g.err("No item is provided to delete.");
 						break;
 					case "func":
 						TObject o = TObject.from(vals.pop(vars));
@@ -354,18 +369,6 @@ public class ExpressionEvaluator {
 		if(errorCalled) {
 			if(!vals.isEmpty())
 				Console.g.err(vals.peek());
-		}
-		if(exportCalled) {
-			if(!vars.isEmpty())
-				vm.getCurrentScope().export(vars.peek());
-			else
-				Console.g.err("Attempting export on non variable.");
-		}
-		if(deleteCalled) {
-			if(!vars.isEmpty())
-				vm.deleteVar(vars.peek());
-			else
-				Console.g.err("Attempting delete on non variable.");
 		}
 		}
 		catch(Exception e) {

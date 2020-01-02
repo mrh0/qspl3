@@ -96,6 +96,10 @@ public class TArray implements Value{
 
 	@Override
 	public Value div(Value v) {
+		if(v.getType() != Types.NUMBER) {
+			Console.g.err("Cannot preform operation divide type " + Types.getName(v) + " with type Array.");
+			return this;
+		}
 		int index  = v.intValue();
 		if(index < getSize() && index >= 0)
 			values.remove(index);
@@ -104,17 +108,20 @@ public class TArray implements Value{
 
 	@Override
 	public Value mod(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation modulo type " + Types.getName(v) + " with type Array.");
+		return this;
 	}
 
 	@Override
 	public Value pow(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation pow type " + Types.getName(v) + " with type Array.");
+		return this;
 	}
 
 	@Override
 	public Value root() {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation sqrt on type Array.");
+		return this;
 	}
 
 	@Override
@@ -172,7 +179,7 @@ public class TArray implements Value{
 
 	@Override
 	public Value duplicate() {
-		return new TArray(values);
+		return new TArray(values); // Won't duplicate value references!!!
 	}
 
 	@Override
@@ -195,6 +202,7 @@ public class TArray implements Value{
 				return new TArray(values.subList(a1, values.size()+a2));
 			return new TArray(values.subList(a1, a2));
 		}
+		Console.g.err("Bad use of accessor.");
 		return TUndefined.getInstance();
 	}
 	
@@ -227,6 +235,7 @@ public class TArray implements Value{
 		return values;
 	}
 	
+	@Deprecated
 	public double sum() {
 		double d = 0;
 		for(Value vt : values) {
@@ -244,12 +253,13 @@ public class TArray implements Value{
 			return this;
 		if(type == Types.STRING)
 			return new TString(this.toString());
-		return TUndefined.getInstance();
+		Console.g.err("Cannot convert type Array to type" + Types.getName(type) + ".");
+		return this;
 	}
 
 	@Override
 	public int intValue() {
-		return -1;
+		return values.hashCode();
 	}
 	
 	public static TArray merge(Value v1, Value v2) {

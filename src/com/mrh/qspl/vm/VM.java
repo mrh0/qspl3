@@ -93,7 +93,7 @@ public class VM {
 		return rv;
 	}
 	
-	private Var getVar(String name, boolean checkLock) {
+	protected Var getVar(String name, boolean checkLock) {
 		Var v;
 		ListIterator<Scope> it = scopeStack.listIterator(scopeStack.size());
 		while(it.hasPrevious()) {
@@ -103,7 +103,6 @@ public class VM {
 				break;
 			if(s.isLocked())
 				continue;
-			
 			if(v != null) 
 				return v;
 		}
@@ -113,7 +112,7 @@ public class VM {
 	}
 	
 	protected Var getVar(String name) {
-		return getVar(name, false);
+		return getVar(name, true);//was false (set true for possible fix for when creating objects 'new {var1}' when var1 is defined in prev scope).
 	}
 	
 	public Value getValue(String name) {

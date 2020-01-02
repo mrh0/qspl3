@@ -48,12 +48,14 @@ public class TString implements Value<String>, Comparable<Value>{
 			}
 			return new TString(r);
 		}
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation subtract type " + Types.getName(v) + " with type String.");
+		return this;
 	}
 
 	@Override
 	public Value multi(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation multiply type " + Types.getName(v) + " with type String.");
+		return this;
 	}
 
 	@Override
@@ -65,22 +67,26 @@ public class TString implements Value<String>, Comparable<Value>{
 				j[i] = new TString(k[i]);
 			return new TArray(j);
 		}
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation divide type " + Types.getName(v) + " with type String.");
+		return this;
 	}
 
 	@Override
 	public Value mod(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation modulo type " + Types.getName(v) + " with type String.");
+		return this;
 	}
 
 	@Override
 	public Value pow(Value v) {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation pow type " + Types.getName(v) + " with type String.");
+		return this;
 	}
 
 	@Override
 	public Value root() {
-		return TUndefined.getInstance();
+		Console.g.err("Cannot preform operation sqrt on type String.");
+		return this;
 	}
 	
 	@Override
@@ -90,7 +96,7 @@ public class TString implements Value<String>, Comparable<Value>{
 
 	@Override
 	public boolean equals(Value v) {
-		return v.get().equals(s);
+		return v.get().equals(this.get());
 	}
 
 	@Override
@@ -106,7 +112,7 @@ public class TString implements Value<String>, Comparable<Value>{
 	@Override
 	public boolean contains(Value v) {
 		if(v instanceof TString)
-			return s.indexOf((String)v.get())!=-1;
+			return s.indexOf((String)v.get()) != -1;
 		return false;
 	}
 
@@ -138,7 +144,8 @@ public class TString implements Value<String>, Comparable<Value>{
 			return new TString(s.charAt((int)Math.round((double)v[0].get()))+"");
 		if(v.length >= 2)
 			return new TString(s.substring((int)Math.round((double)v[0].get()), (int)Math.round((double)v[1].get()+1))+"");
-		return null;
+		Console.g.err("Bad use of accessor.");
+		return TUndefined.getInstance();
 	}
 
 	@Override
@@ -152,12 +159,13 @@ public class TString implements Value<String>, Comparable<Value>{
 			return this;
 		if(type == Types.NUMBER)
 			return new TNumber(Double.parseDouble(s));
-		return TUndefined.getInstance();
+		Console.g.err("Cannot convert type String to type" + Types.getName(type) + ".");
+		return this;
 	}
 
 	@Override
 	public int intValue() {
-		return -1;
+		return s.hashCode();
 	}
 
 	@Override
@@ -168,7 +176,7 @@ public class TString implements Value<String>, Comparable<Value>{
 	public static TString from(Value v) {
 		if(v instanceof TString)
 			return (TString)v;
-		Console.g.err(v + " is not a string.");
+		Console.g.err(v + " is not a String.");
 		return null;
 	}
 }

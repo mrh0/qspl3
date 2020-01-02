@@ -35,6 +35,8 @@ public class Tokenizer {
 	boolean isFuncDef = false;
 	boolean isInclude = false;
 	boolean isIncludeFrom = false;
+	boolean isExport = false;
+	boolean isDelete = false;
 	
 	public Tokenizer() {
 		w = "";
@@ -141,16 +143,30 @@ public class Tokenizer {
 					if(set == StatementEndType.WHILE)
 						Console.g.err("Invalid end '::' to function definition.");
 				}
-				if(isInclude) {
+				else if(isInclude) {
 					if(!isIncludeFrom)
 						gotNewToken(new Token("}", TokenType.seperator));
 					gotNewToken(new Token("import", TokenType.keyword));
 					if(set != StatementEndType.END)
-						Console.g.err("Invalid end to import.");
+						Console.g.err("Invalid end to import statement.");
+				}
+				else if(isDelete) {
+					gotNewToken(new Token("}", TokenType.seperator));
+					gotNewToken(new Token("delete", TokenType.keyword));
+					if(set != StatementEndType.END)
+						Console.g.err("Invalid end to delete statement.");
+				}
+				else if(isExport) {
+					gotNewToken(new Token("}", TokenType.seperator));
+					gotNewToken(new Token("export", TokenType.keyword));
+					if(set != StatementEndType.END)
+						Console.g.err("Invalid end to export statement.");
 				}
 				isFuncDef = false;
 				isInclude = false;
 				isIncludeFrom = false;
+				isDelete = false;
+				isExport = false;
 				endStatement(set);
 				continue;
 			}
@@ -379,14 +395,24 @@ public class Tokenizer {
 					gotNewToken(new Token("new", TokenType.keyword));
 					gotNewToken(new Token("{", TokenType.seperator));
 				}
-				if(w.equals("import")) {
+				else if(w.equals("import")) {
 					isInclude = true;
 					gotNewToken(new Token("new", TokenType.keyword));
 					gotNewToken(new Token("{", TokenType.seperator));
 				}
-				if(w.equals("from")) {
+				else if(w.equals("from")) {
 					isIncludeFrom = true;
 					gotNewToken(new Token("}", TokenType.keyword));
+				}
+				else if(w.equals("delete")) {
+					isDelete = true;
+					gotNewToken(new Token("new", TokenType.keyword));
+					gotNewToken(new Token("{", TokenType.seperator));
+				}
+				else if(w.equals("export")) {
+					isExport = true;
+					gotNewToken(new Token("new", TokenType.keyword));
+					gotNewToken(new Token("{", TokenType.seperator));
 				}
 			}
 			
@@ -402,7 +428,7 @@ public class Tokenizer {
 				if(w.equals("."))
 					lastWasPeriod = true;
 				else {
-					if(!w.equals("func") && !w.equals("import")) {
+					if(!w.equals("func") && !w.equals("import") && !w.equals("delete") && !w.equals("export")) {
 						t = new Token(w, cur);
 						gotNewToken(t);
 					}
