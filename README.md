@@ -1,5 +1,5 @@
 # qspl
-Quick Statement Programming Language v3.1.0
+Quick Statement Programming Language v3.1.2
 
 # About
 Qspl is a object-oriented* interpreted scripting programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
