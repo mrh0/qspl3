@@ -97,14 +97,19 @@ a ? 9 //Array contains 9 : false
 a[]; //Get first depth size : 6
 a[0] //Get first element : 5.0
 a[1,3] //Get array of elements 1 to 3 : [1.0,4.0,5.0]
+a[0] = 5; //Is NOT a valid asignment. Use #set[index, value]
 
 //Fuctions:
 a#clear[]; //Clears array : []
 a#add["World"]; //Adds element "World" to the end of the array : ["Hello"]
-a#add[0, "Hello"] //Adds element "Hello" to array before index 0 : ["Hello", "World]"
-a#remove["Hello"] //Removes element "Hello" : ["World"]
-a#removeAt[0] //Removes element at index 0 : []
-a#collapse[] //Returns collapsed string : "HelloWorld"
+a#add[0, "Hello"]; //Adds element "Hello" to array before index 0 (same as #enqueue[value]) : ["Hello", "World"]
+a#remove["Hello"]; //Removes element "Hello" : ["World"]
+a#set[0, "Hello"]; //Sets first element to "Hello" : ["Hello"];
+a#push["World"]; //Stack push : ["Hello", "World]"
+a#collapse[]; //Returns collapsed string : "HelloWorld"
+a#removeAt[0]; //Removes element at index 0 : ["World"]
+a#pop[]; //Stack pop element : "World"
+a#dequeue[]; //Queue dequeue element (a is empty) : undefined
 
 a = new [3,2,4,6];
 a#sort[] //Sorts array : [2,3,4,6]
