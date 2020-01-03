@@ -103,7 +103,7 @@ public class VM {
 				break;
 			if(s.isLocked())
 				continue;
-			if(v != null) 
+			if(v != null)
 				return v;
 		}
 		v = new Var(name, TUndefined.getInstance(), name.toUpperCase().equals(name));
@@ -112,7 +112,7 @@ public class VM {
 	}
 	
 	protected Var getVar(String name) {
-		return getVar(name, true);//was false (set true for possible fix for when creating objects 'new {var1}' when var1 is defined in prev scope).
+		return getVar(name, false);//was false (set true for possible fix for when creating objects 'new {var1}' when var1 is defined in prev scope).
 	}
 	
 	public Value getValue(String name) {

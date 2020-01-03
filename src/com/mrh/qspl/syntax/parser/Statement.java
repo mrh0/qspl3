@@ -44,7 +44,7 @@ public class Statement {
 		for(Token t : tokens) {
 			r += t.toString();
 		}
-		return r + ";\n";
+		return r + endType+"\n";
 	}
 	
 	public StatementEndType getEndType() {

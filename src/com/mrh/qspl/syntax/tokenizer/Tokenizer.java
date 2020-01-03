@@ -136,12 +136,14 @@ public class Tokenizer {
 							set = StatementEndType.WHILE;
 						}
 				}
+				if(isFuncDef && set == StatementEndType.IF)
+					set = StatementEndType.FUNC;
 				end();
 				if(isFuncDef) {
 					gotNewToken(new Token("}", TokenType.seperator));
 					gotNewToken(new Token("func", TokenType.keyword));
-					if(set == StatementEndType.WHILE)
-						Console.g.err("Invalid end '::' to function definition.");
+					if(set != StatementEndType.FUNC)
+						Console.g.err("Invalid end to function definition.");
 				}
 				else if(isInclude) {
 					if(!isIncludeFrom)
@@ -327,21 +329,41 @@ public class Tokenizer {
 		return 0;
 	}
 	
+	//Fix for long standing bug for values not getting assigned in objects: new {a, b}; becomes: new {a=undefined, b=undefined};
+	private boolean hasAsigned = true;
+	private boolean preGotWasIdent = false;
+	private boolean lastOpenWasCurly = false;
+	
 	private void gotNewToken(Token t) {
 		TokenType tt = t.getType();
 		String tss = t.getToken();
 		
 		if(tss.equals("[") || tss.equals("{")) {
+			if(tss.equals("{"))
+				lastOpenWasCurly = true;
+			else
+				lastOpenWasCurly = false;
+			hasAsigned = false;
 			mc.push();
 			gmc().postfixList.add(t);
 		}
 		else if(tss.equals("]") || tss.equals("}")) {
+			if(tss.equals("}") && !hasAsigned && preGotWasIdent) {
+				gotNewToken(new Token("=", TokenType.operator));
+				gotNewToken(new Token("undefined", TokenType.identifier));
+			}
+			hasAsigned = false;
 			finishPart();
 			gmc().postfixList.add(t);
 			ArrayList<Token> tl = mc.pop();
 			gmc().postfixList.addAll(tl);
 		}
 		else if(tss.equals(",")) {
+			if(!hasAsigned && lastOpenWasCurly) {
+				gotNewToken(new Token("=", TokenType.operator));
+				gotNewToken(new Token("undefined", TokenType.identifier));
+			}
+			hasAsigned = false;
 			finishPart();
 			ArrayList<Token> tl = mc.pop();
 			gmc().postfixList.addAll(tl);
@@ -362,6 +384,8 @@ public class Tokenizer {
 			}
 		}
 		else if(tt == TokenType.operator) {
+			if(tss.equals("="))
+				hasAsigned = true;
 			while(!gmc().opStack.isEmpty() && (opValue(gmc().opStack.peek().getToken()) >= opValue(tss))) {
 				gmc().postfixList.add(gmc().opStack.pop());
 			}
@@ -370,6 +394,7 @@ public class Tokenizer {
 		else {
 			gmc().tokStack.add(t);
 		}
+		preGotWasIdent = tt == TokenType.identifier;
 	}
 	
 	
@@ -378,8 +403,11 @@ public class Tokenizer {
 		cur = Tokens.tokenSwapType(w, cur);
 		
 		if(cur == TokenType.identifier)
-			if(Tokens.isKeyword(w))
+			if(Tokens.isKeyword(w)) {
 				cur = TokenType.keyword;
+				if(w.equals("$"))
+					w = "new";
+			}
 		
 		if(cur == TokenType.operator)
 			opValue(w);
@@ -428,7 +456,7 @@ public class Tokenizer {
 				if(w.equals("."))
 					lastWasPeriod = true;
 				else {
-					if(!w.equals("func") && !w.equals("import") && !w.equals("delete") && !w.equals("export")) {
+					if(!w.equals("func") && !w.equals("import") && !w.equals("delete") && !w.equals("export") && !(w.equals("*") && isInclude)) {
 						t = new Token(w, cur);
 						gotNewToken(t);
 					}
@@ -486,6 +514,9 @@ public class Tokenizer {
 		}
 		
 		public MapContext get() {
+			if(stack.isEmpty()) {
+				Console.g.err("Critical stack error. Likely caused by unbalanced {} or [].");
+			}
 			return stack.peek();
 		}
 		

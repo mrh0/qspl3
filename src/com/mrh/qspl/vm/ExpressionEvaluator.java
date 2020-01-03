@@ -214,6 +214,7 @@ public class ExpressionEvaluator {
 						case "=":
 							k = vars.peek();
 							vm.setValue(k.getName(), v);
+							//k.set(v);
 							vals.pop(vars);
 							v = k.get();
 							break;
@@ -321,9 +322,16 @@ public class ExpressionEvaluator {
 							Console.g.err("No item is provided to delete.");
 						break;
 					case "func":
+						if(!brackets.isEmpty()) {
+							if(brackets.peek().getOpener() == '{')
+								Console.g.err("Cannot define function inside Object definition.");
+							if(brackets.peek().getOpener() == '[')
+								Console.g.err("Cannot define function inside Array definition or Accessor.");
+							break;
+						}
 						TObject o = TObject.from(vals.pop(vars));
 						vals.push(new TUserFunc(statement.getNext(), o, o.getSpecialOrder()));
-						onceFunc = true;
+						onceFunc = false;
 						break;
 					case "exit":
 						exitCalledStack.push(true);

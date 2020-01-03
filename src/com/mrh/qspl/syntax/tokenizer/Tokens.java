@@ -11,12 +11,15 @@ public class Tokens {
 		none			//nothing
 	}
 	
-	public static String[] keywords = {"out", "error", "exit", "else", "break", "prev", "continue", "in", "of", "func", "new", "$", "#", "import", "export", "from", "delete"}; // as, is
+	
 	
 	public static boolean isNewSymbol(String s) {
-		return s.equals("new") || s.equals("$");
+		return s.equals("new");// || s.equals("$");
 	}
 	
+	@Deprecated
+	private static String[] keywords = {"out", "error", "exit", "else", "break", "prev", "continue", "in", "of", "func", "new", "$", "#", "import", "export", "from", "delete"}; // as, is
+	@Deprecated
 	public static boolean isKeywordLegacy(String s) {
 		for(String x : keywords)
 			if(x.equals(s))
