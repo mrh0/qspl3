@@ -1,5 +1,5 @@
 # qspl
-Quick Statement Programming Language v3.1.2
+Quick Statement Programming Language v3.2.0
 
 # About
 Qspl is a object-oriented* interpreted scripting programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
@@ -97,7 +97,7 @@ a ? 9 //Array contains 9 : false
 a[]; //Get first depth size : 6
 a[0] //Get first element : 5.0
 a[1,3] //Get array of elements 1 to 3 : [1.0,4.0,5.0]
-a[0] = 5; //Is NOT a valid asignment. Use #set[index, value]
+a[0] = 5; //Assigning value 5 to index 0
 
 //Fuctions:
 a#clear[]; //Clears array : []
@@ -132,9 +132,11 @@ obj[]; //Get first depth size : 2;
 obj + new{y=7}; //Join objects : {a=1, b=new{a=3}, x=4, y=7}
 obj ? 1 //Object contains  1 : true
 obj#keys[] ? "a" //Object has key 'a' : true
+obj["a"] = 2; // Assigning value 2 to object at key "a"
+obj.a = 3; // Assigning value 3 to object at key "a"
 
 //Functions:
-obj#add["g", "text"]; //Adds element to object : {a=1, b={a=3}, x=4, y=7, g="text"}
+obj#add["g", "text"]; //Adds element to object : {a=3, b={a=3}, x=4, y=7, g="text"}
 obj#set["a", 5] //Set element value : {a=5, b=new{a=3}, x=4, y=7, g="text"}
 obj#remove["x"] //Removes element at key 'x' : {a=5, b={a=3}, y=7, g="text"}
 obj#toJSON[] //Get json string : "{'a':5, 'b'={'a':3}, 'y':7, 'g':'text'}"
