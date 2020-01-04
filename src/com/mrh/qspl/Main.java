@@ -1,17 +1,7 @@
 package com.mrh.qspl;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
 import com.mrh.qspl.debug.Debug;
 import com.mrh.qspl.io.file.FileIO;
-import com.mrh.qspl.syntax.tokenizer.Tokenizer;
-import com.mrh.qspl.val.type.TFunc;
-import com.mrh.qspl.vm.ExpressionEvaluator;
-import com.mrh.qspl.vm.VM;
-
 /**
  * Test area.
  * @author MRH0
@@ -49,7 +39,7 @@ public class Main {
 			code = FileIO.readFromFile(args[0]);
 		}
 		else
-			code = FileIO.readFromFile("C:\\MRHLang\\debug.qs");
+			code = FileIO.readFromFile("C:\\MRHLang\\debug.qs");//debug math-evaluator
 		if(!Debug.noResult)
 			System.out.println("[PROGRAM OUTPUT]:");
 		if(outputCode)

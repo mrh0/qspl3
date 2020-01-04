@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,48 +16,52 @@ import com.mrh.qspl.val.type.TObject.TObjectKeyIterator;
 import com.mrh.qspl.var.Var;
 
 public class TArray implements Value{
-	private ArrayList<Value> values;
+	private ArrayList<Var> values;
 	private static Map<String, Value> prototype = new HashMap<String, Value>();
 	
 	public TArray() {
-		values = new ArrayList<Value>();
+		values = new ArrayList<Var>();
 	}
 	
 	public TArray(ArrayList<Value> v) {
-		values = v;
+		values = new ArrayList<Var>();
+		for(Value k : v)
+			values.add(new Var(k));
 	}
 	
 	public TArray(Value...v) {
-		values = new ArrayList<Value>();
+		values = new ArrayList<Var>();
 		for(Value k : v)
-			values.add(k);
+			values.add(new Var(k));
 	}
 	
 	public TArray(String...v) {
-		values = new ArrayList<Value>();
+		values = new ArrayList<Var>();
 		for(String k : v)
-			values.add(new TString(k));
+			values.add(new Var(new TString(k)));
 	}
 	
 	public TArray(List<Value> v) {
-		values = new ArrayList<Value>();
+		values = new ArrayList<Var>();
 		for(Value k : v)
-			values.add(k);
+			values.add(new Var(k));
 	}
 	
 	public Value find(Value v) {
-		for(Value k : values)
-			if(k.equals(v))
-				return k;
+		for(Var k : values)
+			if(k.get().equals(v))
+				return k.get();
 		return TUndefined.getInstance();
 	}
 
 	@Override
 	public Value add(Value v) {
 		if(v.getType() == Types.ARRAY)
-			values.addAll(((TArray)v).getAll());
+			for(Value k : TArray.from(v).getAll())
+				values.add(new Var(k));
+			//values.addAll(((TArray)v).getAll());
 		else
-			values.add(v);
+			values.add(new Var(v));
 		return this;
 	}
 
@@ -179,7 +184,7 @@ public class TArray implements Value{
 
 	@Override
 	public Value duplicate() {
-		return new TArray(values); // Won't duplicate value references!!!
+		return new TArray();//new TArray(values); // Won't duplicate value references!!!
 	}
 
 	@Override
@@ -188,33 +193,52 @@ public class TArray implements Value{
 	}
 
 	@Override
-	public Value accessor(Value[] v) {
+	public Var accessor(Value[] v) {
 		if(v.length == 0)
-			return new TNumber(getSize());
+			return new Var(new TNumber(getSize()));
 		if(v.length == 1)
 			return values.get(v[0].intValue());
 		if(v.length == 2) {
 			int a1 = v[0].intValue();
 			int a2 = v[1].intValue();
 			if(a2 > a1)
-				return TUndefined.getInstance();
+				return new Var(TUndefined.getInstance());
 			if(a2 < 0)
-				return new TArray(values.subList(a1, values.size()+a2));
-			return new TArray(values.subList(a1, a2));
+				return new Var(new TArray(extractValues(values.subList(a1, values.size()+a2))));
+			return new Var(new TArray(extractValues(values.subList(a1, a2))));
 		}
 		Console.g.err("Bad use of accessor.");
-		return TUndefined.getInstance();
+		return new Var(TUndefined.getInstance());
+	}
+	
+	public ArrayList<Value> getValues(){
+		ArrayList<Value> r = new ArrayList<Value>();
+		for(Var v : values) {
+			r.add(v.get());
+		}
+		return r;
+	}
+	
+	private static ArrayList<Value> extractValues(List<Var> l){
+		ArrayList<Value> r = new ArrayList<Value>();
+		for(Var v : l) {
+			r.add(v.get());
+		}
+		return r;
 	}
 	
 	@Override
 	public String toString() {
-		String r = "[";
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
 		for(int i = 0; i < values.size(); i++) {
-			r += values.get(i);
+			Value v = values.get(i).get();
+			sb.append(v.getType() == Types.STRING?"'"+v+"'":v);
 			if(i+1 < values.size())
-				r += ",";
+				sb.append(", ");
 		}
-		return r+"]";
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override
@@ -223,26 +247,26 @@ public class TArray implements Value{
 	}
 	
 	public Value getIndex(int i) {
-		return values.get(i);
+		return values.get(i).get();
 	}
 	
 	public Value setIndex(int i, Value v) {
-		values.set(i, v);
+		values.set(i, new Var(v));
 		return this;
 	}
 	
 	public ArrayList<Value> getAll(){
-		return values;
+		return extractValues(values);
 	}
 	
 	@Deprecated
 	public double sum() {
 		double d = 0;
-		for(Value vt : values) {
-			if(vt.getType() == Types.ARRAY)
-				d += ((TArray)vt).sum();
-			if(vt.getType() == Types.NUMBER)
-				d += ((TNumber)vt).get();
+		for(Var vt : values) {
+			if(vt.get().getType() == Types.ARRAY)
+				d += ((TArray)vt.get()).sum();
+			if(vt.get().getType() == Types.NUMBER)
+				d += ((TNumber)vt.get()).get();
 		}
 		return d;
 	}
@@ -282,21 +306,21 @@ public class TArray implements Value{
 	}
 	
 	public void put(Value v) {
-		values.add(v);
+		values.add(new Var(v));
 	}
 	
 	public JSONArray toJSON() {
 		JSONArray o = new JSONArray();
 		for(int i = 0; i < values.size(); i++) {
-			Value vt = values.get(i);
-			if(vt.getType() == Types.OBJECT)
-				o.put(i, TObject.from(vt).toJSON());
-			else if(vt.getType() == Types.ARRAY)
-				o.put(i, TArray.from(vt).toJSON());
-			else if(vt.getType() == Types.NUMBER)
-				o.put(i, TNumber.from(vt).get());
-			else if(vt.getType() == Types.STRING)
-				o.put(i, TString.from(vt).get());
+			Var vt = values.get(i);
+			if(vt.get().getType() == Types.OBJECT)
+				o.put(i, TObject.from(vt.get()).toJSON());
+			else if(vt.get().getType() == Types.ARRAY)
+				o.put(i, TArray.from(vt.get()).toJSON());
+			else if(vt.get().getType() == Types.NUMBER)
+				o.put(i, TNumber.from(vt.get()).get());
+			else if(vt.get().getType() == Types.STRING)
+				o.put(i, TString.from(vt.get()).get());
 			else
 				o.put(i, vt.toString());
 		}

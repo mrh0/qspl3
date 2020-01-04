@@ -1,6 +1,7 @@
 package com.mrh.qspl.val.type;
 
 import com.mrh.qspl.val.Value;
+import com.mrh.qspl.var.Var;
 
 public class TUndefined implements Value<Object>{
 	
@@ -107,8 +108,8 @@ public class TUndefined implements Value<Object>{
 	}
 
 	@Override
-	public Value accessor(Value[] v) {
-		return getInstance();
+	public Var accessor(Value[] v) {
+		return new Var(getInstance());
 	}
 
 	@Override

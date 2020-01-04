@@ -2,6 +2,7 @@ package com.mrh.qspl.val.type;
 
 import com.mrh.qspl.io.console.Console;
 import com.mrh.qspl.val.Value;
+import com.mrh.qspl.var.Var;
 
 public class TString implements Value<String>, Comparable<Value>{
 
@@ -137,15 +138,15 @@ public class TString implements Value<String>, Comparable<Value>{
 	}
 
 	@Override
-	public Value accessor(Value[] v) {
+	public Var accessor(Value[] v) {
 		if(v.length == 0)
-			return new TNumber(getSize());
+			return new Var(new TNumber(getSize()));
 		if(v.length == 1)
-			return new TString(s.charAt((int)Math.round((double)v[0].get()))+"");
+			return new Var(new TString(s.charAt((int)Math.round((double)v[0].get()))+""));
 		if(v.length >= 2)
-			return new TString(s.substring((int)Math.round((double)v[0].get()), (int)Math.round((double)v[1].get()+1))+"");
+			return new Var(new TString(s.substring((int)Math.round((double)v[0].get()), (int)Math.round((double)v[1].get()+1))+""));
 		Console.g.err("Bad use of accessor.");
-		return TUndefined.getInstance();
+		return new Var(TUndefined.getInstance());
 	}
 
 	@Override

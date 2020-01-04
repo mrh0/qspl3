@@ -1,5 +1,7 @@
 package com.mrh.qspl.val;
 
+import com.mrh.qspl.var.Var;
+
 public interface IArithmetic {
 	public Value add(Value v);
 	
@@ -27,8 +29,8 @@ public interface IArithmetic {
 	
 	public Value[] childObjects(Value v);
 	
-	public Value accessor(Value[] v);
-	public default Value accessor(Value v) {
+	public Var accessor(Value[] v);
+	public default Var accessor(Value v) {
 		Value[] k = {v};
 		return accessor(k);
 	}

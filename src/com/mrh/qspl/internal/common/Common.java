@@ -365,8 +365,8 @@ public class Common {
 				}
 			}
 			if(_this.getType() == Types.OBJECT && args.size() > 1) {
-				TObject a = (TObject) _this;
-				a.getMap().put(TString.from(args.get(0)).get(), args.get(1));
+				TObject a = TObject.from(_this);
+				a.put(TString.from(args.get(0)).get(), args.get(1));
 			}
 			return _this;
 		};
@@ -374,7 +374,7 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY && args.size() > 0) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				a.getAll().addAll(args);
 			}
 			return _this;
@@ -383,16 +383,16 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY && args.size() == 1) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				a.getAll().add(args.get(0));
 			}
 			if(_this.getType() == Types.ARRAY && args.size() > 1) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				a.getAll().add(args.get(0).intValue(), args.get(1));
 			}
 			if(_this.getType() == Types.OBJECT && args.size() > 1) {
-				TObject a = (TObject) _this;
-				a.getMap().put(TString.from(args.get(0)).get(), args.get(1));
+				TObject a = TObject.from(_this);
+				a.put(TString.from(args.get(0)).get(), args.get(1));
 			}
 			return _this;
 		};
@@ -400,7 +400,7 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				if(a.getSize() == 0)
 					System.err.println("Err: pop: empty array");
 				return a.getAll().remove(a.getSize()-1);
@@ -411,7 +411,7 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				if(a.getSize() == 0) {
 					System.err.println("Err: peek: empty array: " + a);
 				}
@@ -423,7 +423,7 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				if(a.getSize() == 0)
 					System.err.println("Err: dequeue: empty array");
 				return a.getAll().remove(0);
@@ -434,7 +434,7 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY && args.size() == 1) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				return a.getAll().remove(args.get(0).intValue());
 			}
 			return TUndefined.getInstance();
@@ -443,7 +443,7 @@ public class Common {
 		
 		f = (ArrayList<Value> args, VM vm, Value _this) -> {
 			if(_this.getType() == Types.ARRAY && args.size() == 1) {
-				TArray a = (TArray) _this;
+				TArray a = TArray.from(_this);
 				Value vt = a.find(args.get(0));
 				if(!vt.isUndefined())
 					a.getAll().remove(vt);

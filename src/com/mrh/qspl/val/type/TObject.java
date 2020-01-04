@@ -1,8 +1,12 @@
 package com.mrh.qspl.val.type;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import com.mrh.qspl.io.console.Console;
@@ -11,7 +15,7 @@ import com.mrh.qspl.var.Var;
 
 public class TObject implements Value{
 	
-	private Map<String, Value> map;
+	private Map<String, Var> map;
 	private static Map<String, Value> prototype = new HashMap<String, Value>();
 	private String[] argOrder = null;
 	
@@ -20,20 +24,38 @@ public class TObject implements Value{
 	}
 	
 	public TObject(Map<String, Value> m) {
-		map = m;
 		if(map == null) {
 			Console.g.err("Object defined as null, defauling to empty.");
 			map = new HashMap<>();
 		}
+		else
+			map = varInsertValues(m);
 	}
 	
 	public TObject(Map<String, Value> m, String[] keys) {
-		map = m;
-		if(map == null) {
+		if(m == null) {
 			Console.g.err("Object defined as null, defauling to empty.");
 			map = new HashMap<>();
 		}
+		else
+			map = varInsertValues(m);
 		argOrder = keys;
+	}
+	
+	private static Map<String, Value> extractValues(Map<String, Var> l){
+		HashMap<String, Value> r = new HashMap<String, Value>();
+		for(String k : l.keySet()) {
+			r.put(k, l.get(k).get());
+		}
+		return r;
+	}
+	
+	private static Map<String, Var> varInsertValues(Map<String, Value> l){
+		HashMap<String, Var> r = new HashMap<String, Var>();
+		for(String k : l.keySet()) {
+			r.put(k, new Var(l.get(k)));
+		}
+		return r;
 	}
 	
 	public String[] getSpecialOrder() {
@@ -45,7 +67,7 @@ public class TObject implements Value{
 		if(v.getType() == Types.OBJECT) {
 			TObject o = TObject.from(v);
 			for(String key : o.getKeys()) {
-				this.set(key, o.get(key));
+				this.set(key, o.get(key).get());
 			}
 		}
 		else
@@ -111,8 +133,8 @@ public class TObject implements Value{
 
 	@Override
 	public boolean contains(Value v) {
-		for(Value vv : map.values()) {
-			if(v.equals(vv))
+		for(Var vv : map.values()) {
+			if(v.equals(vv.get()))
 				return true;
 		}
 		return false;
@@ -120,7 +142,7 @@ public class TObject implements Value{
 
 	@Override
 	public Value childObject(Value v) {
-		return map.getOrDefault(TString.from(v).get(), TUndefined.getInstance());
+		return map.getOrDefault(TString.from(v).get(), new Var(TUndefined.getInstance())).get();
 	}
 
 	@Override
@@ -129,19 +151,19 @@ public class TObject implements Value{
 	}
 
 	@Override
-	public Value accessor(Value[] v) {
+	public Var accessor(Value[] v) {
 		if(v.length == 0)
-			return new TNumber(map.size());
+			return new Var(new TNumber(map.size()));
 		if(v.length == 1) {
 			String key = TString.from(v[0]).get();
-			return map.getOrDefault(key, getPrototype().getOrDefault(key, TUndefined.getInstance()));
+			return map.getOrDefault(key, this.put(key, new Var(TUndefined.getInstance()))); //new Var(getPrototype().getOrDefault(key, TUndefined.getInstance()))
 		}
 		TObject o = new TObject();
 		for(Value vv : v) {
 			String k = TString.from(vv).get();
-			o.set(k, map.getOrDefault(k, TUndefined.getInstance()));
+			o.set(k, map.getOrDefault(k, new Var(TUndefined.getInstance())).get());
 		}
-		return o;
+		return new Var(o);
 	}
 
 	@Override
@@ -191,16 +213,16 @@ public class TObject implements Value{
 	}
 	
 	public TObject set(String key, Value v) {
-		map.put(key, v);
+		map.put(key, new Var(v));
 		return this;
 	}
 	
-	public Value get(String key) {
+	public Var get(String key) {
 		if(map == null) {
 			Console.g.err("Broken Object.");
-			return TUndefined.getInstance();
+			return new Var(TUndefined.getInstance());
 		}
-		return map.getOrDefault(key, TUndefined.getInstance());
+		return map.getOrDefault(key, new Var(TUndefined.getInstance()));
 	}
 	
 	public String[] getKeys() {
@@ -213,13 +235,27 @@ public class TObject implements Value{
 		return map.values().toArray(new Value[0]);
 	}
 	
-	public Map<String, Value> getMap() {
+	public Map<String, Var> getMap() {
 		return map;
 	}
 	
 	@Override
 	public String toString() {
-		return map.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		Set<String> set = map.keySet();
+		int i = 0;
+		for(String k : set) {
+			sb.append(k);
+			sb.append("=");
+			Value v = map.getOrDefault(k, new Var(TUndefined.getInstance())).get();
+			sb.append(v.getType() == Types.STRING?"'"+v+"'":v);
+			if(i+1 < set.size())
+				sb.append(", ");
+			i++;
+		}
+		sb.append("}");
+		return sb.toString();
 	}
 
 	@Override
@@ -227,22 +263,30 @@ public class TObject implements Value{
 		return 0;
 	}
 	
-	public void put(String key, Value v) {
-		map.put(key, v);
+	public Var put(String key, Value v) {
+		Var r = new Var(v);
+		map.put(key, r);
+		return r;
 	}
+	
+	public Var put(String key, Var v) {
+		map.put(key, v);
+		return v;
+	}
+	
 	
 	public JSONObject toJSON() {
 		JSONObject o = new JSONObject();
 		for(String key : map.keySet()) {
-			Value vt = map.get(key);
-			if(vt.getType() == Types.OBJECT)
-				o.put(key, TObject.from(vt).toJSON());
-			else if(vt.getType() == Types.ARRAY)
-				o.put(key, TArray.from(vt).toJSON());
-			else if(vt.getType() == Types.NUMBER)
-				o.put(key, TNumber.from(vt).get());
-			else if(vt.getType() == Types.STRING)
-				o.put(key, TString.from(vt).get());
+			Var vt = map.get(key);
+			if(vt.get().getType() == Types.OBJECT)
+				o.put(key, TObject.from(vt.get()).toJSON());
+			else if(vt.get().getType() == Types.ARRAY)
+				o.put(key, TArray.from(vt.get()).toJSON());
+			else if(vt.get().getType() == Types.NUMBER)
+				o.put(key, TNumber.from(vt.get()).get());
+			else if(vt.get().getType() == Types.STRING)
+				o.put(key, TString.from(vt.get()).get());
 			else
 				o.put(key, vt.toString());
 		}

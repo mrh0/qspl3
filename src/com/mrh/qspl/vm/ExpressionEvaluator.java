@@ -77,6 +77,7 @@ public class ExpressionEvaluator {
 		boolean outCalled = false;
 		boolean errorCalled = false;
 		boolean includeFromCalled = false;
+		boolean inObjectDefBeforeFirst = false;
 
 		boolean onceFunc = false;
 		
@@ -95,14 +96,21 @@ public class ExpressionEvaluator {
 			}
 			else if(s.equals("{")) {
 				Value vt = (Tokens.isNewSymbol(prev.getToken())?null:vals.pop(vars));
+				inObjectDefBeforeFirst = true;
 				brackets.push(new BracketItem('{', vt, beforeprev!= null && prev.getToken().equals("#")) );
 				vm.createNewScope("object", true);
 			}
 			else if(s.equals(",")) {
-				if(!brackets.isEmpty())
+				if(!brackets.isEmpty()) {
+					if(brackets.peek().getOpener() == '{')
+						inObjectDefBeforeFirst = true;
 					brackets.peek().add(vals.pop(vars));
+				}
 			}
 			else if(s.equals("}")) {
+				if(inObjectDefBeforeFirst)
+					Console.g.err("Syntax error when defining Object.");
+				inObjectDefBeforeFirst = false; // Sanity check
 				Scope oScope = vm.popScope();
 				if(!brackets.isEmpty()) {
 					BracketItem bi = brackets.pop();
@@ -131,9 +139,13 @@ public class ExpressionEvaluator {
 								System.out.println("EXEC:" + prevp.toString() + ":" + _this + " par:" + bi.getParameters() + " ret:" + vals.peek()+" sub: " + bi.isSubOp());
 						}
 						else {
-							//vals.push(prevp); //Used as this value if function needs it. Will increase stack (KEEP IN MIND)
-							Value vt = prevp.accessor(bi.getParameters().toArray(new Value[0]));
-							vals.push(vt);
+							Var vt = prevp.accessor(bi.getParameters().toArray(new Value[0]));
+							if(bi.getParameters().size() == 1) {
+								vars.push(vt);
+								vals.push(vt.get(), vt);
+							}
+							else
+								vals.push(vt.get());
 						}
 					}
 				}
@@ -212,9 +224,19 @@ public class ExpressionEvaluator {
 							v = TNumber.from(v).increment(1);
 							break;
 						case "=":
+							if(vals.isEmpty()) {
+								Console.g.err("Assigning to empty value stack.");
+								break;
+							}
+							if(vars.isEmpty()) {
+								Console.g.err("Assigning non-variable.");
+								break;
+							}
 							k = vars.peek();
-							vm.setValue(k.getName(), v);
-							//k.set(v);
+							
+							//vm.setValue(k.getName(), v); //From this.
+							k.set(v); //Changed back to this.
+							
 							vals.pop(vars);
 							v = k.get();
 							break;
@@ -277,11 +299,11 @@ public class ExpressionEvaluator {
 							for(String key : toInclude.getMap().keySet()) {
 								if(key.equals("ALL")) {
 									for(String akey : included.getKeys()) {
-										vm.setValue(akey, included.get(akey));
+										vm.setValue(akey, included.get(akey).get());
 									}
 									break;
 								}
-								Value v = included.get(key);
+								Value v = included.get(key).get();
 								if(v == null || v == TUndefined.getInstance())
 									Console.g.err("Undefined import '" + key + "' from " + from);
 								vm.setValue(key, v);
@@ -358,11 +380,16 @@ public class ExpressionEvaluator {
 				}
 			}
 			else if(t.equals(TokenType.identifier)) {
-				Var k = vm.getVar(s);
+				Var k;
+				if(inObjectDefBeforeFirst)
+					k = vm.getVar(s, true); // or new Var(s);
+				else
+					k = vm.getVar(s);
 				if(Debug.enabled())
 					System.out.println("Pushed var " + s + ":" + k);
 				vars.push(k);
 				vals.push(k.get(), k);
+				inObjectDefBeforeFirst = false;
 			}
 			else
 				Console.g.err("Unexpected token: '" + s + "'");
@@ -414,17 +441,13 @@ public class ExpressionEvaluator {
 					ofCalled = false;
 					Value p = sr.vals.pop(sr.vars);
 					if(p.getType() == Types.ARRAY)
-						iter = TArray.from(p).keyIterator(); //fix should be index
+						iter = TArray.from(p).keyIterator();
 					if(p.getType() == Types.OBJECT)
 						iter = TObject.from(p).keyIterator();
 				}
-				if(sr.pass && s.hasNext() && s.getEndType() == StatementEndType.IF) { // if iter != null else if(...)
-					Value y = walkThrough(s.getNext());
-					if(y != null)
-						retv = y;
-				}
+				
 			}
-			else { //if iter != null
+			if (iter != null) { //if iter != null
 				while(iter.hasNext() && !breakCalled) {
 					vm.setValue(s.getTokens()[0].getToken(), (Value)iter.next());
 					Value y = walkThrough(s.getNext());
@@ -435,9 +458,17 @@ public class ExpressionEvaluator {
 				iter = null;
 				didIter = true;
 			}
+			else {
+				if(sr.pass && s.hasNext()) { // if iter != null else if(...) // 
+					Value y = walkThrough(s.getNext());
+					if(y != null)
+						retv = y;
+				}
+			}
 			
 			if(Debug.enabled() && exitCalledStack.peek() != null)
 				System.out.println("EXIT CALLED: " + sr.vals.peek());
+			//Console.g.log((s.getEndType() == StatementEndType.WHILE) +":"+ sr.pass +":"+ !(exitCalledStack.peek() != null) +":"+ !didIter);
 			if(s.getEndType() == StatementEndType.WHILE && sr.pass && !(exitCalledStack.peek() != null) && !didIter) {
 				if(!breakCalled)
 					i--;

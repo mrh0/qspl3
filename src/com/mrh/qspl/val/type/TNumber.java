@@ -2,6 +2,7 @@ package com.mrh.qspl.val.type;
 
 import com.mrh.qspl.io.console.Console;
 import com.mrh.qspl.val.Value;
+import com.mrh.qspl.var.Var;
 
 public class TNumber implements Value<Double>, Comparable<Value>{
 
@@ -104,7 +105,7 @@ public class TNumber implements Value<Double>, Comparable<Value>{
 	
 	@Override
 	public int compare(Value v) {
-		return (((Double)value).compareTo((Double)v.get()));
+		return (((Double)value).compareTo(TNumber.from(v).get()));
 	}
 
 	@Override
@@ -138,8 +139,8 @@ public class TNumber implements Value<Double>, Comparable<Value>{
 	}
 
 	@Override
-	public Value accessor(Value[] v) {
-		return TUndefined.getInstance();
+	public Var accessor(Value[] v) {
+		return new Var(TUndefined.getInstance());
 	}
 
 	@Override

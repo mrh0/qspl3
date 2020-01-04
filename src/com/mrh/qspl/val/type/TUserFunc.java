@@ -29,7 +29,7 @@ public class TUserFunc extends TFunc{
 			String r = "func(";
 			for(int i = 0; i < paramaterList.length; i++) {
 				r += paramaterList[i];
-				if(parameterObject.get(paramaterList[i]) != null && parameterObject.get(paramaterList[i]) != TUndefined.getInstance())
+				if(parameterObject.get(paramaterList[i]) != null && parameterObject.get(paramaterList[i]).get() != TUndefined.getInstance())
 					r += "=" + parameterObject.get(paramaterList[i]);
 				if(i+1 < paramaterList.length)
 					r += ",";
@@ -53,7 +53,7 @@ public class TUserFunc extends TFunc{
 		if(parameterObject != null) {
 			int i = 0;
 			for(String key : parameterObject.getKeys()) {
-				scope.setVariable(key, new Var(key, (i < args.size() && args.get(i) != TUndefined.getInstance())?args.get(i):parameterObject.get(key), false));
+				scope.setVariable(key, new Var(key, (i < args.size() && args.get(i) != TUndefined.getInstance())?args.get(i):parameterObject.get(key).get(), false));
 				i++;
 			}
 		}

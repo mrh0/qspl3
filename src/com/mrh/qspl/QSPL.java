@@ -2,7 +2,6 @@ package com.mrh.qspl;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-
 import com.mrh.qspl.debug.Debug;
 import com.mrh.qspl.internal.common.Common;
 import com.mrh.qspl.io.console.Console;
@@ -11,7 +10,6 @@ import com.mrh.qspl.val.Value;
 import com.mrh.qspl.val.type.TFunc;
 import com.mrh.qspl.val.type.TUndefined;
 import com.mrh.qspl.var.Var;
-import com.mrh.qspl.vm.ExpressionEvaluator;
 import com.mrh.qspl.vm.VM;
 
 /**

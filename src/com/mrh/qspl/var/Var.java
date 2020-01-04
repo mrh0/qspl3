@@ -18,6 +18,11 @@ public class Var {
 		this.value = TUndefined.getInstance();
 	}
 	
+	public Var(Value v) {
+		this.name = "?";
+		this.value = v;
+	}
+	
 	public Var(String name, Value v, boolean constant) {
 		this.value = v;
 		this.constant = constant;
